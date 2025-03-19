@@ -40,42 +40,47 @@ const JobsList = () => {
       
       {loading ? (
         <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-gray-900"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+        </div>
+      ) : jobs.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-gray-500 mb-4">No job postings found</p>
+          <Link 
+            to="/create-job" 
+            className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Create a Job
+          </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md">
-          {jobs.map((job) => (
-            <Link
-              key={job._id}
-              to={`/jobs/${job._id}`}
-              className="block border-b last:border-b-0 hover:bg-gray-50 transition-colors"
-            >
-              <div className="p-4 flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">{job.title}</h2>
-                  <div className="mt-1 flex items-center space-x-4 text-sm text-gray-500">
-                    <span>{job.department}</span>
-                    <span>•</span>
-                    <span>{job.location}</span>
-                    <span>•</span>
-                    <span className={`capitalize ${
-                      job.status === 'active' ? 'text-green-600' :
-                      job.status === 'draft' ? 'text-yellow-600' :
-                      'text-red-600'
-                    }`}>
-                      {job.status}
-                    </span>
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          <ul className="divide-y divide-gray-200">
+            {jobs.map((job) => (
+              <li key={job._id}>
+                <Link 
+                  to={`/jobs/${job._id}`}
+                  className="block hover:bg-gray-50 transition-colors p-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-medium text-gray-900">{job.title}</h2>
+                      <p className="text-sm text-gray-500 mt-1">{job.department} • {job.location}</p>
+                      <div className="mt-2">
+                        <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+                          job.status === 'active' ? 'bg-green-100 text-green-800' : 
+                          job.status === 'closed' ? 'bg-red-100 text-red-800' : 
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-gray-400" />
                   </div>
-                </div>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              </div>
-            </Link>
-          ))}
-          {jobs.length === 0 && (
-            <div className="p-4 text-center text-gray-500">
-              No job postings found. Create your first job posting!
-            </div>
-          )}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

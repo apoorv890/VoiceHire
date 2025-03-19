@@ -4,6 +4,7 @@ import CreateJob from './components/CreateJob';
 import JobDetails from './components/JobDetails';
 import Navigation from './components/Navigation';
 import LiveKitPage from './components/LiveKitPage';
+import SearchPage from './pages/SearchPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route path="/create-job" element={<CreateJob />} />
             <Route path="/jobs/:id" element={<JobDetails />} />
             <Route path="/audio-conference" element={<LiveKitPage />} />
+            <Route path="/search" element={<SearchPage />} />
           </Routes>
         </div>
       </div>

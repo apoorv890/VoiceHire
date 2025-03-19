@@ -1,22 +1,29 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import multer from 'multer';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 import { Groq } from 'groq-sdk';
 import pdfParse from 'pdf-parse';
 import nodemailer from 'nodemailer';
+import { AccessToken } from 'livekit-server-sdk';
 import Job from './models/Job.js';
 import Candidate from './models/Candidate.js';
-import { AccessToken } from 'livekit-server-sdk';
+import { 
+  isLikelyJobTitle, 
+  escapeRegExp, 
+  createExactMatchRegex, 
+  createPartialMatchRegex, 
+  normalizeQuery 
+} from './utils/searchUtils.js';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
@@ -63,6 +70,440 @@ const groqClient = new Groq({
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch(err => console.error('MongoDB connection error:', err));
+
+// Search jobs endpoint
+app.get('/api/search/jobs', async (req, res) => {
+  try {
+    const { query, department, location, status } = req.query;
+    
+    // Build search criteria
+    const searchCriteria = {};
+    
+    // Add text search if query is provided
+    if (query && query.trim() !== '') {
+      searchCriteria.$text = { $search: query };
+    }
+    
+    // Add filters
+    if (department) searchCriteria.department = department;
+    if (location) searchCriteria.location = location;
+    if (status) searchCriteria.status = status;
+    
+    // Execute search
+    let jobs;
+    
+    if (query && query.trim() !== '') {
+      // If using text search, sort by text score
+      jobs = await Job.find(
+        searchCriteria,
+        { score: { $meta: "textScore" } }
+      )
+      .sort({ score: { $meta: "textScore" }, createdAt: -1 })
+      .limit(20);
+    } else {
+      // Otherwise, just use filters and sort by date
+      jobs = await Job.find(searchCriteria)
+        .sort({ createdAt: -1 })
+        .limit(20);
+    }
+    
+    res.json(jobs);
+  } catch (error) {
+    console.error('Error searching jobs:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Search candidates endpoint
+app.get('/api/search/candidates', async (req, res) => {
+  try {
+    const { query, jobId, minScore, maxScore } = req.query;
+    
+    // Build search criteria
+    const searchCriteria = {};
+    
+    // Add text search if query is provided
+    if (query && query.trim() !== '') {
+      searchCriteria.$text = { $search: query };
+    }
+    
+    // Add filters
+    if (jobId) searchCriteria.jobId = jobId;
+    
+    // Add score range filter if provided
+    if (minScore !== undefined || maxScore !== undefined) {
+      searchCriteria.atsScore = {};
+      if (minScore !== undefined) searchCriteria.atsScore.$gte = parseInt(minScore);
+      if (maxScore !== undefined) searchCriteria.atsScore.$lte = parseInt(maxScore);
+    }
+    
+    // Execute search
+    let candidates;
+    
+    if (query && query.trim() !== '') {
+      // If using text search, sort by text score
+      candidates = await Candidate.find(
+        searchCriteria,
+        { score: { $meta: "textScore" } }
+      )
+      .sort({ score: { $meta: "textScore" }, createdAt: -1 })
+      .limit(20);
+    } else {
+      // Otherwise, just use filters and sort by date
+      candidates = await Candidate.find(searchCriteria)
+        .sort({ createdAt: -1 })
+        .limit(20);
+    }
+    
+    res.json(candidates);
+  } catch (error) {
+    console.error('Error searching candidates:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Type-ahead suggestions endpoint for jobs
+app.get('/api/search/suggestions/jobs', async (req, res) => {
+  try {
+    const { prefix } = req.query;
+    
+    if (!prefix || prefix.trim() === '') {
+      return res.json([]);
+    }
+    
+    // Get suggestions from different fields
+    const titleRegex = new RegExp(`^${prefix}`, 'i');
+    const departmentRegex = new RegExp(`^${prefix}`, 'i');
+    const locationRegex = new RegExp(`^${prefix}`, 'i');
+    
+    // Find matching jobs
+    const jobs = await Job.find({
+      $or: [
+        { title: titleRegex },
+        { department: departmentRegex },
+        { location: locationRegex },
+        { keywords: titleRegex }
+      ]
+    }).limit(10);
+    
+    // Extract unique suggestions
+    const suggestions = new Set();
+    
+    jobs.forEach(job => {
+      // Check if job title starts with the prefix
+      if (job.title.toLowerCase().startsWith(prefix.toLowerCase())) {
+        suggestions.add(job.title);
+      }
+      
+      // Check if department starts with the prefix
+      if (job.department.toLowerCase().startsWith(prefix.toLowerCase())) {
+        suggestions.add(job.department);
+      }
+      
+      // Check if location starts with the prefix
+      if (job.location.toLowerCase().startsWith(prefix.toLowerCase())) {
+        suggestions.add(job.location);
+      }
+      
+      // Check keywords
+      job.keywords.forEach(keyword => {
+        if (keyword.toLowerCase().startsWith(prefix.toLowerCase())) {
+          suggestions.add(keyword);
+        }
+      });
+    });
+    
+    res.json(Array.from(suggestions).slice(0, 10));
+  } catch (error) {
+    console.error('Error getting job suggestions:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Type-ahead suggestions endpoint for candidates
+app.get('/api/search/suggestions/candidates', async (req, res) => {
+  try {
+    const { prefix, jobId } = req.query;
+    
+    if (!prefix || prefix.trim() === '') {
+      return res.json([]);
+    }
+    
+    // Build search criteria
+    const searchCriteria = {
+      $or: [
+        { name: new RegExp(`^${prefix}`, 'i') },
+        { email: new RegExp(`^${prefix}`, 'i') },
+        { skills: new RegExp(`^${prefix}`, 'i') }
+      ]
+    };
+    
+    // Add jobId filter if provided
+    if (jobId) {
+      searchCriteria.jobId = jobId;
+    }
+    
+    // Find matching candidates
+    const candidates = await Candidate.find(searchCriteria).limit(10);
+    
+    // Extract unique suggestions
+    const suggestions = new Set();
+    
+    candidates.forEach(candidate => {
+      // Check if name starts with the prefix
+      if (candidate.name.toLowerCase().startsWith(prefix.toLowerCase())) {
+        suggestions.add(candidate.name);
+      }
+      
+      // Check if email starts with the prefix
+      if (candidate.email.toLowerCase().startsWith(prefix.toLowerCase())) {
+        suggestions.add(candidate.email);
+      }
+      
+      // Check skills
+      candidate.skills.forEach(skill => {
+        if (skill.toLowerCase().startsWith(prefix.toLowerCase())) {
+          suggestions.add(skill);
+        }
+      });
+    });
+    
+    res.json(Array.from(suggestions).slice(0, 10));
+  } catch (error) {
+    console.error('Error getting candidate suggestions:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Unified search endpoint for both jobs and candidates
+app.get('/api/unified-search', async (req, res) => {
+  try {
+    const { query } = req.query;
+    
+    if (!query || query.trim() === '') {
+      return res.json({ jobs: [], candidates: [] });
+    }
+    
+    // Normalize the query
+    const normalizedQuery = normalizeQuery(query);
+    
+    // Determine search type based on query pattern
+    const jobTitleQuery = isLikelyJobTitle(normalizedQuery);
+    
+    // Prepare results object
+    const results = {
+      jobs: [],
+      candidates: []
+    };
+    
+    // JOBS SEARCH
+    // Try exact title match first (case-insensitive)
+    const exactJobMatches = await Job.find({ 
+      $or: [
+        { title: createExactMatchRegex(query) },
+        { searchableTitle: normalizedQuery }
+      ]
+    }).limit(5);
+    
+    if (exactJobMatches.length > 0) {
+      // We have exact matches, prioritize them
+      results.jobs = exactJobMatches;
+    } else {
+      // Try partial title match next
+      const partialTitleMatches = await Job.find({
+        title: createPartialMatchRegex(query)
+      }).limit(8);
+      
+      if (partialTitleMatches.length > 0) {
+        // We have partial title matches
+        results.jobs = partialTitleMatches;
+      } else {
+        // Fall back to text search
+        const jobSearchCriteria = { $text: { $search: query } };
+        
+        // If query looks like a job title, boost title and department fields
+        if (jobTitleQuery) {
+          const jobTextMatches = await Job.find(
+            jobSearchCriteria,
+            { 
+              score: { $meta: "textScore" },
+              // Boost title matches
+              titleMatch: {
+                $cond: {
+                  if: { $regexMatch: { input: "$title", regex: createPartialMatchRegex(query) } },
+                  then: 10,
+                  else: 0
+                }
+              }
+            }
+          )
+          .sort({ titleMatch: -1, score: { $meta: "textScore" } })
+          .limit(10);
+          
+          results.jobs = jobTextMatches;
+        } else {
+          // Standard text search
+          const jobTextMatches = await Job.find(
+            jobSearchCriteria,
+            { score: { $meta: "textScore" } }
+          )
+          .sort({ score: { $meta: "textScore" } })
+          .limit(5);
+          
+          results.jobs = jobTextMatches;
+        }
+      }
+    }
+    
+    // CANDIDATES SEARCH
+    // If query doesn't look like a job title, prioritize candidate name matches
+    if (!jobTitleQuery) {
+      // First try exact name matches (case-insensitive)
+      const exactNameMatches = await Candidate.find({
+        $or: [
+          { name: createExactMatchRegex(query) },
+          { searchableName: normalizedQuery }
+        ]
+      }).limit(5);
+      
+      if (exactNameMatches.length > 0) {
+        results.candidates = exactNameMatches;
+      } else {
+        // Try partial name matches
+        const partialNameMatches = await Candidate.find({
+          name: createPartialMatchRegex(query)
+        }).limit(8);
+        
+        if (partialNameMatches.length > 0) {
+          results.candidates = partialNameMatches;
+        } else {
+          // Fall back to text search
+          results.candidates = await Candidate.find(
+            { $text: { $search: query } },
+            { score: { $meta: "textScore" } }
+          )
+          .sort({ score: { $meta: "textScore" } })
+          .limit(5);
+        }
+      }
+    } else {
+      // Still search candidates but with lower priority when query looks like a job title
+      results.candidates = await Candidate.find(
+        { $text: { $search: query } },
+        { score: { $meta: "textScore" } }
+      )
+      .sort({ score: { $meta: "textScore" } })
+      .limit(3);
+    }
+    
+    // Populate job details for candidates
+    if (results.candidates.length > 0) {
+      results.candidates = await Candidate.populate(results.candidates, {
+        path: 'jobId',
+        select: 'title department'
+      });
+    }
+    
+    res.json(results);
+  } catch (error) {
+    console.error('Error performing unified search:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Semantic search endpoint using Groq LLM
+app.post('/api/search/semantic', async (req, res) => {
+  try {
+    const { query, collection, limit = 10 } = req.body;
+    
+    if (!query || !collection) {
+      return res.status(400).json({ error: 'Query and collection are required' });
+    }
+    
+    if (!['jobs', 'candidates'].includes(collection)) {
+      return res.status(400).json({ error: 'Collection must be either "jobs" or "candidates"' });
+    }
+    
+    // Get all documents from the specified collection
+    let documents = [];
+    if (collection === 'jobs') {
+      documents = await Job.find({}).limit(100);
+    } else {
+      documents = await Candidate.find({}).limit(100);
+    }
+    
+    // Prepare documents for semantic search
+    const formattedDocs = documents.map(doc => {
+      const docObj = doc.toObject();
+      let content = '';
+      
+      if (collection === 'jobs') {
+        content = `Title: ${docObj.title}\nDepartment: ${docObj.department}\nLocation: ${docObj.location}\nDescription: ${docObj.description}\nRequirements: ${docObj.requirements}`;
+      } else {
+        content = `Name: ${docObj.name}\nEmail: ${docObj.email}\nResume: ${docObj.resumeText}\nMatch Explanation: ${docObj.matchExplanation}`;
+      }
+      
+      return {
+        id: docObj._id.toString(),
+        content
+      };
+    });
+    
+    // Use Groq to perform semantic search
+    const prompt = `
+You are a semantic search engine for an HR portal. You need to find the most relevant ${collection} based on the user's query.
+
+User Query: ${query}
+
+Documents to search through:
+${formattedDocs.map((doc, index) => `Document ${index + 1} (ID: ${doc.id}):\n${doc.content}`).join('\n\n')}
+
+Return a JSON array of the top ${limit} most relevant document IDs, ordered by relevance. The JSON should be an array of strings, where each string is a document ID.
+Example: ["id1", "id2", "id3"]
+`;
+
+    const completion = await groqClient.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "llama3-70b-8192",
+      temperature: 0.1,
+      max_tokens: 500,
+    });
+
+    const responseContent = completion.choices[0].message.content;
+    
+    // Parse the JSON response
+    try {
+      // Clean up the response to ensure it's valid JSON
+      const cleanedResponse = responseContent
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
+      
+      const docIds = JSON.parse(cleanedResponse);
+      
+      // Fetch the actual documents by ID
+      let results = [];
+      if (collection === 'jobs') {
+        results = await Job.find({ _id: { $in: docIds } });
+      } else {
+        results = await Candidate.find({ _id: { $in: docIds } });
+      }
+      
+      // Sort results in the same order as the docIds array
+      results.sort((a, b) => {
+        return docIds.indexOf(a._id.toString()) - docIds.indexOf(b._id.toString());
+      });
+      
+      res.json(results);
+    } catch (error) {
+      console.error('Error parsing semantic search results:', error);
+      res.status(500).json({ error: 'Failed to parse semantic search results' });
+    }
+  } catch (error) {
+    console.error('Error performing semantic search:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Create a new job
 app.post('/api/jobs', async (req, res) => {
@@ -114,7 +555,7 @@ app.get('/api/jobs/:id', async (req, res) => {
 });
 
 // Upload and process resumes for a job
-app.post('/api/jobs/:id/candidates/upload', upload.single('resume'), async (req, res) => {
+app.post('/api/jobs/:id/candidates/upload', upload.array('resumes', 5), async (req, res) => {
   try {
     const jobId = req.params.id;
     
@@ -129,24 +570,28 @@ app.post('/api/jobs/:id/candidates/upload', upload.single('resume'), async (req,
       return res.status(404).json({ error: 'Job not found' });
     }
     
-    // Check if file was uploaded
-    if (!req.file) {
-      return res.status(400).json({ error: 'No resume file uploaded' });
+    // Check if files were uploaded
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No resume files uploaded' });
     }
 
-    try {
-      const pdfBuffer = fs.readFileSync(req.file.path);
-      const data = await pdfParse(pdfBuffer);
-      const resumeText = data.text;
+    // Limit to 5 files
+    if (req.files.length > 5) {
+      return res.status(400).json({ error: 'Maximum 5 resume files allowed' });
+    }
 
-      // Process resume with Groq LLM
-      const processResumeWithLLM = async (resumeText, jobDescription) => {
-        try {
-          // Truncate texts to avoid token limits
-          const truncatedResumeText = resumeText.substring(0, 3000);
-          const truncatedJobDescription = jobDescription.substring(0, 1000);
-          
-          const prompt = `
+    // Process each resume
+    const processedCandidates = [];
+    const errors = [];
+
+    // Process resume with Groq LLM
+    const processResumeWithLLM = async (resumeText, jobDescription) => {
+      try {
+        // Truncate texts to avoid token limits
+        const truncatedResumeText = resumeText.substring(0, 3000);
+        const truncatedJobDescription = jobDescription.substring(0, 1000);
+        
+        const prompt = `
 You are an AI assistant specialized in analyzing resumes for job applications.
 
 JOB DESCRIPTION:
@@ -170,75 +615,81 @@ Return ONLY a valid JSON object with the following structure:
 }
 `;
 
-          const completion = await groqClient.chat.completions.create({
-            messages: [{ role: "user", content: prompt }],
-            model: "llama3-70b-8192",
-            temperature: 0.3, // Lower temperature for more consistent results
-            max_tokens: 500,  // Limit response size
-          });
+        const completion = await groqClient.chat.completions.create({
+          messages: [{ role: "user", content: prompt }],
+          model: "llama3-70b-8192",
+          temperature: 0.3, // Lower temperature for more consistent results
+          max_tokens: 500,  // Limit response size
+        });
 
-          const responseContent = completion.choices[0].message.content;
+        const responseContent = completion.choices[0].message.content;
+        
+        // Parse the JSON response
+        try {
+          // Clean up the response to ensure it's valid JSON
+          const cleanedResponse = responseContent
+            .replace(/```json/g, '')
+            .replace(/```/g, '')
+            .trim();
           
-          // Parse the JSON response
-          try {
-            // Clean up the response to ensure it's valid JSON
-            const cleanedResponse = responseContent
-              .replace(/```json/g, '')
-              .replace(/```/g, '')
-              .trim();
-            
-            const parsedResponse = JSON.parse(cleanedResponse);
-            
-            // Validate the response has the required fields
-            if (!parsedResponse.name) {
-              parsedResponse.name = "Unknown Candidate";
-            }
-            
-            if (!parsedResponse.matchScore) {
-              parsedResponse.matchScore = 50; // Default score
-            }
-            
-            if (!parsedResponse.matchExplanation) {
-              parsedResponse.matchExplanation = "Score based on general resume evaluation.";
-            }
-            
-            return {
-              name: parsedResponse.name,
-              email: parsedResponse.email || `${parsedResponse.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
-              matchScore: parsedResponse.matchScore,
-              matchExplanation: parsedResponse.matchExplanation,
-              resumeText: truncatedResumeText.substring(0, 1000) // Store first 1000 chars of resume for reference
-            };
-          } catch (error) {
-            console.error('Error parsing LLM response:', error, 'Raw response:', responseContent);
-            // Return default values instead of throwing an error
-            return {
-              name: "Unknown Candidate",
-              email: "unknown.candidate@example.com",
-              matchScore: 50,
-              matchExplanation: "Unable to analyze resume properly. Score is an estimate.",
-              resumeText: truncatedResumeText.substring(0, 1000)
-            };
+          const parsedResponse = JSON.parse(cleanedResponse);
+          
+          // Validate the response has the required fields
+          if (!parsedResponse.name) {
+            parsedResponse.name = "Unknown Candidate";
           }
+          
+          if (!parsedResponse.matchScore) {
+            parsedResponse.matchScore = 50; // Default score
+          }
+          
+          if (!parsedResponse.matchExplanation) {
+            parsedResponse.matchExplanation = "Score based on general resume evaluation.";
+          }
+          
+          return {
+            name: parsedResponse.name,
+            email: parsedResponse.email || `${parsedResponse.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+            matchScore: parsedResponse.matchScore,
+            matchExplanation: parsedResponse.matchExplanation,
+            resumeText: truncatedResumeText.substring(0, 1000) // Store first 1000 chars of resume for reference
+          };
         } catch (error) {
-          console.error('Error processing with Groq LLM:', error);
+          console.error('Error parsing LLM response:', error, 'Raw response:', responseContent);
           // Return default values instead of throwing an error
           return {
             name: "Unknown Candidate",
             email: "unknown.candidate@example.com",
             matchScore: 50,
-            matchExplanation: "Unable to analyze resume due to technical issues. Score is an estimate.",
-            resumeText: resumeText.substring(0, 1000)
+            matchExplanation: "Unable to analyze resume properly. Score is an estimate.",
+            resumeText: truncatedResumeText.substring(0, 1000)
           };
         }
-      };
+      } catch (error) {
+        console.error('Error processing with Groq LLM:', error);
+        // Return default values instead of throwing an error
+        return {
+          name: "Unknown Candidate",
+          email: "unknown.candidate@example.com",
+          matchScore: 50,
+          matchExplanation: "Unable to analyze resume due to technical issues. Score is an estimate.",
+          resumeText: resumeText.substring(0, 1000)
+        };
+      }
+    };
 
+    // Process each resume file
+    for (const file of req.files) {
       try {
+        const pdfBuffer = fs.readFileSync(file.path);
+        const data = await pdfParse(pdfBuffer);
+        const resumeText = data.text;
+
         // Process with Groq LLM
         const candidateData = await processResumeWithLLM(resumeText, job.description);
         
         // Add file path to candidate data
-        candidateData.resumeUrl = req.file.path;
+        candidateData.resumeUrl = file.path;
         
         // Save candidate to database
         const candidate = new Candidate({
@@ -252,18 +703,27 @@ Return ONLY a valid JSON object with the following structure:
         });
         
         await candidate.save();
-        
-        res.json(candidate);
+        processedCandidates.push(candidate);
       } catch (error) {
         console.error('Error processing resume:', error);
-        res.status(400).json({ error: 'Failed to process the uploaded resume' });
+        errors.push({
+          filename: file.originalname,
+          error: error.message || 'Failed to process the uploaded resume'
+        });
       }
-    } catch (error) {
-      console.error('Error processing resume:', error);
-      res.status(400).json({ error: error.message });
     }
+
+    // Return results
+    res.json({
+      success: processedCandidates.length > 0,
+      candidates: processedCandidates,
+      errors: errors,
+      total: req.files.length,
+      processed: processedCandidates.length,
+      failed: errors.length
+    });
   } catch (error) {
-    console.error('Error processing resume:', error);
+    console.error('Error processing resumes:', error);
     res.status(400).json({ error: error.message });
   }
 });
@@ -380,6 +840,43 @@ ${process.env.COMPANY_NAME || 'HR Team'}</p>`
   }
 });
 
+// AI agent endpoint
+app.post('/api/ai-agent', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    
+    if (!prompt) {
+      return res.status(400).json({ error: 'Missing prompt' });
+    }
+    
+    // Use Groq to process the prompt
+    const completion = await groqClient.chat.completions.create({
+      messages: [
+        { 
+          role: "system", 
+          content: "You are an AI assistant participating in an audio conference. Provide helpful, concise, and informative responses to user queries." 
+        },
+        { 
+          role: "user", 
+          content: prompt 
+        }
+      ],
+      model: "llama3-70b-8192",
+      temperature: 0.7,
+      max_tokens: 800,
+    });
+    
+    const response = completion.choices[0].message.content;
+    
+    // In a real implementation, you would use text-to-speech to convert this response
+    // to audio and play it in the LiveKit room. For now, we'll just return the text.
+    res.json({ response });
+  } catch (error) {
+    console.error('Error processing AI prompt:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // LiveKit token generation
 const createToken = async (identity, roomName) => {
   // If this room doesn't exist, it'll be automatically created when the first
@@ -393,10 +890,18 @@ const createToken = async (identity, roomName) => {
   
   const at = new AccessToken(apiKey, apiSecret, {
     identity,
-    // Token to expire after 10 minutes
-    ttl: '10m',
+    // Token to expire after 24 hours
+    ttl: '24h',
   });
-  at.addGrant({ roomJoin: true, room: roomName });
+
+  // Add permissions for the participant
+  at.addGrant({
+    room: roomName,
+    roomJoin: true,
+    canPublish: true,
+    canSubscribe: true,
+    canPublishData: true
+  });
 
   return await at.toJwt();
 };
@@ -419,12 +924,12 @@ app.get('/api/livekit/token', async (req, res) => {
 });
 
 // Serve static files from the React app
-app.use(express.static(join(__dirname, '../dist')));
+app.use(express.static(path.join(__dirname, '../dist')));
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
-  res.sendFile(join(__dirname, '../dist/index.html'));
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 // Start the server

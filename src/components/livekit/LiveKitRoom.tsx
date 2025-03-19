@@ -13,6 +13,100 @@ interface LiveKitRoomProps {
   roomName: string;
 }
 
+// AI Agent Prompt component
+const AIAgentPrompt = () => {
+  const [prompt, setPrompt] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [response, setResponse] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!prompt.trim()) return;
+    
+    setIsProcessing(true);
+    try {
+      // Send the prompt to your backend
+      const response = await fetch('/api/ai-agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to process prompt');
+      }
+      
+      const data = await response.json();
+      setResponse(data.response);
+    } catch (error) {
+      console.error('Error processing prompt:', error);
+      setResponse('Error processing your prompt. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div style={{
+      marginTop: '20px',
+      padding: '15px',
+      borderRadius: '8px',
+      backgroundColor: '#f9f9f9',
+      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+    }}>
+      <h3 style={{ marginBottom: '10px', color: '#333' }}>AI Assistant</h3>
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: '10px' }}>
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Enter a prompt for the AI assistant..."
+            style={{
+              width: '100%',
+              padding: '10px',
+              borderRadius: '4px',
+              border: '1px solid #ddd',
+              minHeight: '80px',
+              resize: 'vertical'
+            }}
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={isProcessing || !prompt.trim()}
+          style={{
+            padding: '8px 16px',
+            borderRadius: '4px',
+            border: 'none',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            fontWeight: 'bold',
+            cursor: isProcessing || !prompt.trim() ? 'not-allowed' : 'pointer',
+            opacity: isProcessing || !prompt.trim() ? 0.7 : 1
+          }}
+        >
+          {isProcessing ? 'Processing...' : 'Send to AI Assistant'}
+        </button>
+      </form>
+      
+      {response && (
+        <div style={{ 
+          marginTop: '15px',
+          padding: '10px',
+          borderRadius: '4px',
+          backgroundColor: '#e8f5e9',
+          border: '1px solid #c8e6c9'
+        }}>
+          <h4 style={{ marginBottom: '5px', color: '#2e7d32' }}>AI Response:</h4>
+          <p style={{ margin: 0, color: '#333' }}>{response}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Custom audio controls component
 const AudioControls = () => {
   const { localParticipant } = useLocalParticipant();
@@ -89,11 +183,12 @@ const CustomAudioConference = () => {
       flexDirection: 'column',
       alignItems: 'center',
       padding: '20px',
-      maxWidth: '400px',
+      maxWidth: '600px',
       margin: '0 auto'
     }}>
       <h2 style={{ marginBottom: '20px', color: '#333' }}>Audio Conference</h2>
       <AudioControls />
+      <AIAgentPrompt />
     </div>
   );
 };
@@ -162,10 +257,26 @@ function LiveKitRoom({ userName, roomName }: LiveKitRoomProps) {
       Could not generate access token
     </div>
   );
+
+  // Make sure VITE_LIVEKIT_URL is set in your .env file
+  const serverUrl = import.meta.env.VITE_LIVEKIT_URL;
+  if (!serverUrl) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '200px',
+        color: '#f44336'
+      }}>
+        Error: LiveKit server URL not configured
+      </div>
+    );
+  }
   
   return (
     <LKRoom
-      serverUrl={import.meta.env.VITE_LIVEKIT_URL || "wss://your-livekit-server.com"}
+      serverUrl={serverUrl}
       token={token}
       connect={true}
       audio={true}

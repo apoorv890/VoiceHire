@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
-import { Calendar, ArrowUpDown, FileText, Mail, Percent } from 'lucide-react';
+import { Calendar, ArrowUpDown, FileText, Mail, Percent, X, Upload, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface Job {
   _id: string;
@@ -28,15 +28,21 @@ interface Candidate {
 }
 
 const JobDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [job, setJob] = useState<Job | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [processingStatus, setProcessingStatus] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [processingStatus, setProcessingStatus] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{
+    total: number;
+    processed: number;
+    failed: number;
+    inProgress: boolean;
+  }>({ total: 0, processed: 0, failed: 0, inProgress: false });
   const [sortField, setSortField] = useState<'name' | 'atsScore'>('atsScore');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,9 +61,9 @@ const JobDetails = () => {
         
         if (!response.ok) {
           if (response.status === 404) {
-            setError('Job not found');
+            setUploadError('Job not found');
           } else {
-            setError('Error loading job details');
+            setUploadError('Error loading job details');
           }
           return;
         }
@@ -66,7 +72,7 @@ const JobDetails = () => {
         setJob(data);
       } catch (error) {
         console.error('Error fetching job details:', error);
-        setError('Failed to load job details');
+        setUploadError('Failed to load job details');
       } finally {
         setLoading(false);
       }
@@ -96,34 +102,77 @@ const JobDetails = () => {
   // Clean up file previews when component unmounts
   useEffect(() => {
     return () => {
-      // Removed unused state variable selectedFiles
+      // Clean up logic if needed
     };
   }, []);
 
-  const handleResumeUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (file.type !== 'application/pdf') {
-      setUploadError('Only PDF files are allowed');
+  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
+    // Convert FileList to array
+    const filesArray = Array.from(files);
+    
+    // Validate maximum 5 files
+    if (filesArray.length > 5) {
+      setUploadError('Maximum 5 resume files allowed');
       return;
     }
+    
+    // Validate file types and sizes
+    let hasInvalidFile = false;
+    filesArray.forEach(file => {
+      if (file.type !== 'application/pdf') {
+        setUploadError('Only PDF files are allowed');
+        hasInvalidFile = true;
+      }
+      
+      if (file.size > 10 * 1024 * 1024) {
+        setUploadError('Each file size should not exceed 10MB');
+        hasInvalidFile = true;
+      }
+    });
+    
+    if (hasInvalidFile) {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+    
+    setSelectedFiles(filesArray);
+    setUploadError('');
+  };
+  
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError('File size should not exceed 10MB');
+  const handleResumeUpload = async () => {
+    if (selectedFiles.length === 0) {
+      setUploadError('Please select at least one resume file');
       return;
     }
 
     setUploading(true);
     setUploadError('');
-    setProcessingStatus('Uploading resume...');
+    setProcessingStatus('Uploading resumes...');
+    setUploadProgress({
+      total: selectedFiles.length,
+      processed: 0,
+      failed: 0,
+      inProgress: true
+    });
 
     try {
-      setProcessingStatus('Processing resume with AI...');
       const formData = new FormData();
-      formData.append('resume', file);
+      
+      // Append all files to the form data
+      selectedFiles.forEach(file => {
+        formData.append('resumes', file);
+      });
+      
+      setProcessingStatus(`Processing ${selectedFiles.length} resume(s) with AI...`);
       
       const response = await fetch(`http://localhost:5000/api/jobs/${id}/candidates/upload`, {
         method: 'POST',
@@ -132,24 +181,38 @@ const JobDetails = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to upload resume');
+        throw new Error(errorData.error || 'Failed to upload resumes');
       }
 
-      const newCandidate = await response.json();
+      const result = await response.json();
       
-      // Add the new candidate to the list
-      setCandidates(prevCandidates => [newCandidate, ...prevCandidates]);
+      // Add the new candidates to the list
+      if (result.candidates && result.candidates.length > 0) {
+        setCandidates(prevCandidates => [...result.candidates, ...prevCandidates]);
+      }
       
       setProcessingStatus('');
-      setUploading(false);
+      setUploadProgress({
+        total: result.total,
+        processed: result.processed,
+        failed: result.failed,
+        inProgress: false
+      });
+      
+      // Show error if any files failed
+      if (result.failed > 0) {
+        setUploadError(`${result.failed} out of ${result.total} resumes failed to process`);
+      }
       
       // Reset the form
+      setSelectedFiles([]);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     } catch (error) {
       console.error('Error processing resumes:', error);
-      setUploadError(error instanceof Error ? error.message : 'Failed to process resume');
+      setUploadError(error instanceof Error ? error.message : 'Failed to process resumes');
+      setUploadProgress(prev => ({...prev, inProgress: false}));
     } finally {
       setUploading(false);
     }
@@ -230,11 +293,11 @@ const JobDetails = () => {
     return <div className="flex justify-center items-center h-64">Loading...</div>;
   }
 
-  if (error) {
+  if (uploadError) {
     return (
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
         <div className="text-center text-red-500">
-          <h2 className="text-xl font-semibold mb-2">{error}</h2>
+          <h2 className="text-xl font-semibold mb-2">{uploadError}</h2>
           <Button onClick={() => navigate('/')}>Back to Jobs</Button>
         </div>
       </div>
@@ -281,17 +344,18 @@ const JobDetails = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Upload Resume</h2>
-        <p className="text-gray-600 mb-4">Upload a resume to be processed by our AI. We'll extract candidate information and match them against the job description.</p>
+        <h2 className="text-xl font-semibold mb-4">Upload Resumes</h2>
+        <p className="text-gray-600 mb-4">Upload up to 5 resumes at once to be processed by our AI. We'll extract candidate information and match them against the job description.</p>
         
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700">Upload Resume (PDF)</label>
+          <label className="block text-sm font-medium text-gray-700">Upload Resumes (PDF, max 5)</label>
           <input
             type="file"
             ref={fileInputRef}
             accept=".pdf"
-            onChange={handleResumeUpload}
+            onChange={handleFileSelection}
             disabled={uploading}
+            multiple
             className="mt-1 block w-full text-sm text-gray-500
               file:mr-4 file:py-2 file:px-4
               file:rounded-md file:border-0
@@ -299,17 +363,82 @@ const JobDetails = () => {
               file:bg-blue-50 file:text-blue-700
               hover:file:bg-blue-100"
           />
-          {uploadError && (
-            <p className="mt-2 text-sm text-red-600">{uploadError}</p>
-          )}
-          {uploading && (
-            <div className="mt-2">
-              <div className="flex items-center">
-                <div className="mr-2 animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                <p className="text-sm text-gray-600">{processingStatus}</p>
-              </div>
+          
+          {/* Selected files list */}
+          {selectedFiles.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Selected files ({selectedFiles.length}):</p>
+              <ul className="space-y-2">
+                {selectedFiles.map((file, index) => (
+                  <li key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                    <div className="flex items-center">
+                      <FileText className="h-4 w-4 text-gray-500 mr-2" />
+                      <span className="text-sm truncate max-w-xs">{file.name}</span>
+                      <span className="text-xs text-gray-500 ml-2">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => handleRemoveFile(index)}
+                      className="text-gray-500 hover:text-red-500"
+                      disabled={uploading}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
+          
+          {uploadError && (
+            <div className="mt-4 p-2 bg-red-50 text-red-700 rounded flex items-center">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              {uploadError}
+            </div>
+          )}
+          
+          {processingStatus && (
+            <div className="mt-4 p-2 bg-blue-50 text-blue-700 rounded flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700 mr-2"></div>
+              {processingStatus}
+            </div>
+          )}
+          
+          {uploadProgress.inProgress && (
+            <div className="mt-4">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div 
+                  className="bg-blue-600 h-2.5 rounded-full" 
+                  style={{ width: `${(uploadProgress.processed / uploadProgress.total) * 100}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Processing: {uploadProgress.processed} of {uploadProgress.total} resumes
+              </p>
+            </div>
+          )}
+          
+          {!uploadProgress.inProgress && uploadProgress.processed > 0 && (
+            <div className="mt-4 p-2 bg-green-50 text-green-700 rounded flex items-center">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Successfully processed {uploadProgress.processed} resume(s)
+            </div>
+          )}
+          
+          <div className="mt-4">
+            <Button 
+              onClick={handleResumeUpload} 
+              disabled={uploading || selectedFiles.length === 0}
+              className="flex items-center"
+            >
+              {uploading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              ) : (
+                <Upload className="h-4 w-4 mr-2" />
+              )}
+              {uploading ? 'Processing...' : 'Upload Resumes'}
+            </Button>
+          </div>
         </div>
       </div>
 
