@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Calendar, ArrowUpDown, FileText, Mail, Percent, X, Upload, CheckCircle, AlertCircle } from 'lucide-react';
+import { InterviewModal } from './livekit/InterviewModal';
 
 interface Job {
   _id: string;
@@ -46,6 +47,8 @@ const JobDetails = () => {
   const [sortField, setSortField] = useState<'name' | 'atsScore'>('atsScore');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [interviewModalOpen, setInterviewModalOpen] = useState(false);
 
   useEffect(() => {
     // Redirect to home if ID is undefined
@@ -220,15 +223,16 @@ const JobDetails = () => {
 
   const handleScheduleCall = async (candidate: Candidate) => {
     try {
+      // Set the selected candidate and open the interview modal
+      setSelectedCandidate(candidate);
+      setInterviewModalOpen(true);
+      
       // Update the UI to show the call has been scheduled
       setCandidates(prev => 
         prev.map(c => 
           c._id === candidate._id ? { ...c, interviewScheduled: true } : c
         )
       );
-      
-      // Show success notification
-      alert('Interview scheduled successfully!');
     } catch (error) {
       console.error('Error scheduling call:', error);
       alert('Failed to schedule interview. Please try again.');
@@ -293,7 +297,8 @@ const JobDetails = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <>
+      <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -500,6 +505,17 @@ const JobDetails = () => {
         )}
       </div>
     </div>
+
+      {/* Interview Modal */}
+      {selectedCandidate && (
+        <InterviewModal
+          candidateId={selectedCandidate._id}
+          candidateName={selectedCandidate.name}
+          isOpen={interviewModalOpen}
+          onClose={() => setInterviewModalOpen(false)}
+        />
+      )}
+    </>
   );
 };
 

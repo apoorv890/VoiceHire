@@ -868,6 +868,50 @@ app.get('/api/livekit/token', async (req, res) => {
 
 // Interview Agent Endpoints
 
+// Endpoint to schedule an interview and create a LiveKit room
+app.post('/api/interview/schedule', async (req, res) => {
+  try {
+    const { candidateId, candidateName } = req.body;
+    
+    if (!candidateId || !candidateName) {
+      return res.status(400).json({ error: 'Candidate ID and name are required' });
+    }
+    
+    // Create a unique room name based on the candidate ID and timestamp
+    const roomName = `interview-${candidateId}-${Date.now()}`;
+    
+    // Generate tokens for both the candidate and the AI agent
+    const candidateIdentity = `candidate-${candidateId}`;
+    const agentIdentity = 'interview-agent';
+    
+    const candidateToken = await createToken(candidateIdentity, roomName);
+    const agentToken = await createToken(agentIdentity, roomName);
+    
+    // Update the candidate's record to mark the interview as scheduled
+    try {
+      await Candidate.findByIdAndUpdate(candidateId, {
+        interviewScheduled: true,
+        interviewDate: new Date(),
+        interviewRoomName: roomName
+      });
+    } catch (dbError) {
+      console.warn('Could not update candidate record:', dbError);
+      // Continue even if the update fails
+    }
+    
+    res.json({
+      success: true,
+      roomName,
+      candidateToken,
+      interviewerToken: candidateToken, // The HR person uses the same token as the candidate for now
+      agentToken
+    });
+  } catch (error) {
+    console.error('Error scheduling interview:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Endpoint to generate a token for the agent
 app.get('/api/interview/agent-token', async (req, res) => {
   try {
