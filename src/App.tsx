@@ -4,7 +4,6 @@ import JobsList from './components/JobsList';
 import CreateJob from './components/CreateJob';
 import JobDetails from './components/JobDetails';
 import Navigation from './components/Navigation';
-import LiveKitPage from './components/LiveKitPage';
 import SearchPage from './pages/SearchPage';
 import AuthPage from './pages/AuthPage';
 
@@ -96,11 +95,6 @@ function App() {
               <Route path="/jobs/:id" element={
                 <ProtectedRoute>
                   <JobDetails />
-                </ProtectedRoute>
-              } />
-              <Route path="/audio-conference" element={
-                <ProtectedRoute>
-                  <LiveKitPage />
                 </ProtectedRoute>
               } />
               <Route path="/search" element={

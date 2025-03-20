@@ -12,6 +12,7 @@ import nodemailer from 'nodemailer';
 import { AccessToken } from 'livekit-server-sdk';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { spawn } from 'child_process';
 import Job from './models/Job.js';
 import Candidate from './models/Candidate.js';
 import User from './models/User.js'; // Import User model
@@ -780,72 +781,7 @@ app.post('/api/candidates/:id/schedule', async (req, res) => {
   }
 });
 
-// Email sending endpoint
-app.post('/api/send-email', async (req, res) => {
-  try {
-    const { name, email, jobRole } = req.body;
-    
-    // Validate required fields
-    if (!name || !email || !jobRole) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-    
-    // Check if SMTP credentials are properly configured
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS || 
-        process.env.SMTP_PASS === 'your-16-character-app-password') {
-      console.error('SMTP credentials not properly configured');
-      return res.status(500).json({ 
-        error: 'Email service not properly configured', 
-        details: 'Please set up valid SMTP credentials in the .env file' 
-      });
-    }
-    
-    // Create nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    });
-    
-    // Email content
-    const mailOptions = {
-      from: `"${process.env.COMPANY_NAME || 'HR Team'}" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: `Interview Invitation for ${jobRole}`,
-      text: `Dear ${name},
 
-We are pleased to invite you for an interview for the position of ${jobRole}.
-Please reply to this email to confirm your availability.
-
-Best Regards,
-${process.env.COMPANY_NAME || 'HR Team'}`,
-      html: `<p>Dear ${name},</p>
-<p>We are pleased to invite you for an interview for the position of <strong>${jobRole}</strong>.</p>
-<p>Please reply to this email to confirm your availability.</p>
-<p>Best Regards,<br/>
-${process.env.COMPANY_NAME || 'HR Team'}</p>`
-    };
-    
-    // Send email
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
-    
-    res.status(200).json({ success: true, messageId: info.messageId });
-  } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ 
-      error: 'Failed to send email', 
-      details: error.message,
-      solution: error.code === 'EAUTH' ? 
-        'Authentication failed. Please check your SMTP credentials and make sure you\'re using an App Password for Gmail.' : 
-        'Check server logs for details'
-    });
-  }
-});
 
 // AI agent endpoint
 app.post('/api/ai-agent', async (req, res) => {
@@ -926,6 +862,97 @@ app.get('/api/livekit/token', async (req, res) => {
     res.json({ token });
   } catch (error) {
     console.error('Error generating LiveKit token:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Interview Agent Endpoints
+
+// Endpoint to generate a token for the agent
+app.get('/api/interview/agent-token', async (req, res) => {
+  try {
+    const { roomName } = req.query;
+    
+    if (!roomName) {
+      return res.status(400).json({ error: 'Room name is required' });
+    }
+    
+    // Generate a token for the AI agent
+    const agentIdentity = 'interview-agent';
+    const agentToken = await createToken(agentIdentity, roomName);
+    
+    // Return token
+    res.json({
+      token: agentToken,
+      identity: agentIdentity,
+      room: roomName
+    });
+  } catch (error) {
+    console.error('Error generating agent token:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint to start the AI agent
+app.post('/api/interview/start-agent', async (req, res) => {
+  try {
+    const { roomName } = req.body;
+    
+    if (!roomName) {
+      return res.status(400).json({ error: 'Room name is required' });
+    }
+    
+    // Generate a token for the AI agent
+    // The room will be created automatically when the candidate joins
+    const agentIdentity = 'interview-agent';
+    const agentToken = await createToken(agentIdentity, roomName);
+    
+    // Get the absolute path to the shell script
+    const scriptPath = path.join(__dirname, '..', 'agent', 'run_agent.sh');
+    
+    // Check if the script exists
+    if (!fs.existsSync(scriptPath)) {
+      return res.status(500).json({ error: 'Agent script not found' });
+    }
+    
+    console.log(`Starting agent for room: ${roomName}`);
+    
+    // Launch the agent process using the shell script with the LiveKit CLI
+    console.log(`Executing: ${scriptPath} --room ${roomName} --token ${agentToken}`);
+    
+    const agentProcess = spawn(scriptPath, [
+      '--room', roomName,
+      '--token', agentToken
+    ], {
+      cwd: path.join(__dirname, '..', 'agent'),
+      detached: true, // Allow the process to run independently
+      stdio: 'pipe' // Capture output
+    });
+    
+    // Handle agent process output
+    agentProcess.stdout.on('data', (data) => {
+      console.log(`Agent output: ${data}`);
+    });
+    
+    agentProcess.stderr.on('data', (data) => {
+      console.error(`Agent error: ${data}`);
+    });
+    
+    agentProcess.on('close', (code) => {
+      console.log(`Agent process exited with code ${code}`);
+    });
+    
+    // Unref the process to allow the server to exit independently
+    agentProcess.unref();
+    
+    res.json({ 
+      success: true, 
+      message: 'Agent started successfully',
+      room: roomName,
+      token: agentToken
+    });
+  } catch (error) {
+    console.error('Error starting agent:', error);
     res.status(500).json({ error: error.message });
   }
 });

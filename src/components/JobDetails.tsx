@@ -220,29 +220,6 @@ const JobDetails = () => {
 
   const handleScheduleCall = async (candidate: Candidate) => {
     try {
-      // Get job role from the current job
-      const jobRole = job?.title || 'the position';
-      
-      // Prepare email data
-      const emailData = {
-        name: candidate.name,
-        email: candidate.email,
-        jobRole: jobRole
-      };
-      
-      // Send email via API
-      const response = await fetch(`http://localhost:5000/api/send-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(emailData),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to send interview invitation email');
-      }
-      
       // Update the UI to show the call has been scheduled
       setCandidates(prev => 
         prev.map(c => 
@@ -251,10 +228,10 @@ const JobDetails = () => {
       );
       
       // Show success notification
-      alert('Interview invitation email sent successfully!');
+      alert('Interview scheduled successfully!');
     } catch (error) {
       console.error('Error scheduling call:', error);
-      alert('Failed to send interview invitation email. Please try again.');
+      alert('Failed to schedule interview. Please try again.');
     }
   };
 
@@ -509,7 +486,7 @@ const JobDetails = () => {
                       disabled={candidate.interviewScheduled}
                     >
                       <Calendar className="h-4 w-4 mr-2" />
-                      {candidate.interviewScheduled ? 'Interview Scheduled' : 'Schedule Confirmation Call'}
+                      {candidate.interviewScheduled ? 'Interview Scheduled' : 'Schedule Call'}
                     </Button>
                   </div>
                 </div>

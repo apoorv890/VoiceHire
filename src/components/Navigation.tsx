@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Briefcase, Plus, Headphones, Search, X, Menu, LogOut } from 'lucide-react';
+import { Briefcase, Plus, Search, X, Menu, LogOut } from 'lucide-react';
 import { Button } from './ui/button';
 import UnifiedSearch from './UnifiedSearch';
 import { useAuth } from '../App';
@@ -102,12 +102,7 @@ const Navigation = () => {
             <Link to="/">
               <Button className="bg-transparent hover:bg-blue-50 text-blue-700 rounded-lg px-4 py-2 transition-all duration-200 hover:shadow-sm">Jobs</Button>
             </Link>
-            <Link to="/audio-conference">
-              <Button className="bg-transparent hover:bg-blue-50 text-blue-700 rounded-lg px-4 py-2 transition-all duration-200 hover:shadow-sm flex items-center space-x-2">
-                <Headphones className="h-4 w-4" />
-                <span>Audio Conference</span>
-              </Button>
-            </Link>
+
             <Link to="/create-job">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 transition-all duration-200 hover:shadow-md flex items-center space-x-2">
                 <Plus className="h-4 w-4" />
@@ -152,14 +147,7 @@ const Navigation = () => {
               >
                 Jobs
               </Link>
-              <Link 
-                to="/audio-conference" 
-                className="px-4 py-2 text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200 flex items-center space-x-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Headphones className="h-4 w-4" />
-                <span>Audio Conference</span>
-              </Link>
+
               <Link 
                 to="/create-job" 
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2"
