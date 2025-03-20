@@ -1,0 +1,18 @@
+2025-03-20 17:32:33,181 - Connecting to room interview-67da570791c3a1f5f15115c5-1742472151564
+2025-03-20 17:32:33,181 - Connecting to room interview-67da570791c3a1f5f15115c5-1742472151564
+2025-03-20 17:32:33,466 - Starting voice assistant for participant candidate-67da570791c3a1f5f15115c5
+2025-03-20 17:32:33,466 - Starting voice assistant for participant candidate-67da570791c3a1f5f15115c5
+2025-03-20 17:32:33,584 - AI: Hey, how can I help you today?
+2025-03-20 17:32:33,584 - AI: Hey, how can I help you today?
+2025-03-20 17:51:58,248 - Connecting to room interview-67da570791c3a1f5f15115c5-1742473317695
+2025-03-20 17:51:58,248 - Connecting to room interview-67da570791c3a1f5f15115c5-1742473317695
+2025-03-20 17:51:58,718 - Starting voice assistant for participant candidate-67da570791c3a1f5f15115c5
+2025-03-20 17:51:58,718 - Starting voice assistant for participant candidate-67da570791c3a1f5f15115c5
+2025-03-20 17:51:58,877 - AI: Hey, how can I help you today?
+2025-03-20 17:51:58,877 - AI: Hey, how can I help you today?
+2025-03-20 17:54:59,405 - Connecting to room interview-67da570791c3a1f5f15115c5-1742473498831
+2025-03-20 17:54:59,405 - Connecting to room interview-67da570791c3a1f5f15115c5-1742473498831
+2025-03-20 17:54:59,819 - Starting voice assistant for participant candidate-67da570791c3a1f5f15115c5
+2025-03-20 17:54:59,819 - Starting voice assistant for participant candidate-67da570791c3a1f5f15115c5
+2025-03-20 17:54:59,983 - AI: Hey, how can I help you today?
+2025-03-20 17:54:59,983 - AI: Hey, how can I help you today?

@@ -122,6 +122,29 @@ app.get('/api/search/jobs', async (req, res) => {
   }
 });
 
+app.post("/api/interview/save-transcription", async (req, res) => {
+  try {
+    const { roomName, participantId, timestamp, text, speaker } = req.body;
+    
+    // Save transcription to MongoDB
+    const transcription = {
+      roomName,
+      participantId,
+      timestamp,
+      text,
+      speaker
+    };
+    
+    console.log(transcription);
+    // await transcription.save();
+    
+    res.status(200).json({ message: "Transcription saved successfully" });
+  } catch (error) {
+    console.error('Error saving transcription:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Search candidates endpoint
 app.get('/api/search/candidates', async (req, res) => {
   try {
