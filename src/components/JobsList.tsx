@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import { getApiUrl, getDefaultHeaders } from '@/utils/apiConfig';
 
 interface Job {
   _id: string;
@@ -18,7 +19,7 @@ const JobsList = () => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/api/jobs');
+        const response = await fetch(getApiUrl('/api/jobs'));
         if (!response.ok) {
           throw new Error('Failed to fetch jobs');
         }

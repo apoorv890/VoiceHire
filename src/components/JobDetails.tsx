@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Calendar, ArrowUpDown, FileText, Mail, Percent, X, Upload, CheckCircle, AlertCircle } from 'lucide-react';
 import { InterviewModal } from './livekit/InterviewModal';
+import { getApiUrl, getDefaultHeaders } from '@/utils/apiConfig';
 
 interface Job {
   _id: string;
@@ -60,7 +61,7 @@ const JobDetails = () => {
     const fetchJobDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/jobs/${id}`);
+        const response = await fetch(getApiUrl(`/api/jobs/${id}`));
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -83,7 +84,7 @@ const JobDetails = () => {
 
     const fetchCandidates = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/jobs/${id}/candidates`);
+        const response = await fetch(getApiUrl(`/api/jobs/${id}/candidates`));
         
         if (!response.ok) {
           console.error('Error fetching candidates:', response.statusText);
@@ -177,7 +178,7 @@ const JobDetails = () => {
       
       setProcessingStatus(`Processing ${selectedFiles.length} resume(s) with AI...`);
       
-      const response = await fetch(`http://localhost:5000/api/jobs/${id}/candidates/upload`, {
+      const response = await fetch(getApiUrl(`/api/jobs/${id}/candidates/upload`), {
         method: 'POST',
         body: formData,
       });

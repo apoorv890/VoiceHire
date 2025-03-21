@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LiveKitRoom } from './LiveKitRoom';
+import { getApiUrl, getDefaultHeaders } from '@/utils/apiConfig';
 
 interface InterviewModalProps {
   candidateId: string;
@@ -27,7 +28,7 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
         setError(null);
 
         // Call the backend API to create a room and get tokens
-        const response = await fetch('http://localhost:5000/api/interview/schedule', {
+        const response = await fetch(getApiUrl('/api/interview/schedule'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -50,7 +51,7 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
         });
 
         // Start the AI agent
-        const agentResponse = await fetch('http://localhost:5000/api/interview/start-agent', {
+        const agentResponse = await fetch(getApiUrl('/api/interview/start-agent'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

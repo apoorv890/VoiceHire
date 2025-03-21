@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, Mail, User, ArrowRight } from 'lucide-react';
+import { getApiUrl, getDefaultHeaders } from '@/utils/apiConfig';
 import { Button } from '../components/ui/button';
 
 // Tech company logos for the carousel
@@ -125,11 +126,9 @@ const AuthPage: React.FC = () => {
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(getApiUrl(endpoint), {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getDefaultHeaders(),
         body: JSON.stringify(formData),
       });
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import SearchResults from './SearchResults';
+import { getApiUrl, getDefaultHeaders } from '@/utils/apiConfig';
 
 interface Job {
   _id: string;
@@ -62,7 +63,7 @@ const UnifiedSearch: React.FC<UnifiedSearchProps> = ({
     const performSearch = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/api/unified-search?query=${encodeURIComponent(debouncedQuery)}`);
+        const response = await fetch(getApiUrl(`/api/unified-search?query=${encodeURIComponent(debouncedQuery)}`));
         
         if (!response.ok) {
           throw new Error('Search failed');

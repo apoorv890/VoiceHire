@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
+import { getApiUrl, getDefaultHeaders } from '@/utils/apiConfig';
 
 const CreateJob = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const CreateJob = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/jobs', {
+      const response = await fetch(getApiUrl('/api/jobs'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

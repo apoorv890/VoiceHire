@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Filter, X } from 'lucide-react';
 import SearchBar from './ui/search-bar';
 import { Button } from './ui/button';
+import { getApiUrl, getDefaultHeaders } from '@/utils/apiConfig';
 
 interface Job {
   _id: string;
@@ -32,7 +33,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onSearchResults, className = '' }
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/jobs');
+        const response = await fetch(getApiUrl('/api/jobs'));
         if (!response.ok) {
           throw new Error('Failed to fetch jobs');
         }
@@ -69,7 +70,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onSearchResults, className = '' }
       if (selectedLocation) params.append('location', selectedLocation);
       if (selectedStatus) params.append('status', selectedStatus);
       
-      const response = await fetch(`http://localhost:5000/api/search/jobs?${params.toString()}`);
+      const response = await fetch(getApiUrl(`/api/search/jobs?${params.toString()}`));
       
       if (!response.ok) {
         throw new Error('Search failed');
@@ -88,7 +89,7 @@ const JobSearch: React.FC<JobSearchProps> = ({ onSearchResults, className = '' }
     if (prefix.length < 2) return [];
     
     try {
-      const response = await fetch(`http://localhost:5000/api/search/suggestions/jobs?prefix=${encodeURIComponent(prefix)}`);
+      const response = await fetch(getApiUrl(`/api/search/suggestions/jobs?prefix=${encodeURIComponent(prefix)}`));
       if (!response.ok) {
         throw new Error('Failed to fetch suggestions');
       }

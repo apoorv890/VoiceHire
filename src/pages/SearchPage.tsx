@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import SearchResults from '../components/SearchResults';
+import { getApiUrl, getDefaultHeaders } from '@/utils/apiConfig';
 
 interface Job {
   _id: string;
@@ -50,7 +51,7 @@ const SearchPage: React.FC = () => {
     const performSearch = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/api/unified-search?query=${encodeURIComponent(initialQuery)}`);
+        const response = await fetch(getApiUrl(`/api/unified-search?query=${encodeURIComponent(initialQuery)}`));
         
         if (!response.ok) {
           throw new Error('Search failed');

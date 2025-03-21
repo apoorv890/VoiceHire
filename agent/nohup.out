@@ -1,0 +1,240 @@
+2025-03-20 23:15:04,707 - INFO - starting worker
+{"message": "starting worker", "level": "INFO", "name": "livekit.agents", "version": "0.12.17", "rtc-version": "0.21.1", "timestamp": "2025-03-20T17:45:04.707099+00:00"}
+2025-03-20 23:15:04,707 - INFO - starting inference executor
+{"message": "starting inference executor", "level": "INFO", "name": "livekit.agents", "timestamp": "2025-03-20T17:45:04.707227+00:00"}
+2025-03-20 23:15:05,373 - INFO - initializing inference process
+2025-03-20 23:15:05,374 - DEBUG - initializing inference runner
+2025-03-20 23:15:05,373 - INFO - initializing inference process
+{"message": "initializing inference process", "level": "INFO", "name": "livekit.agents", "pid": 122484, "inference": true, "timestamp": "2025-03-20T17:45:05.373869+00:00"}
+2025-03-20 23:15:06,944 - INFO - inference process initialized
+2025-03-20 23:15:06,944 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:15:06,944 - INFO - inference process initialized
+{"message": "inference process initialized", "level": "INFO", "name": "livekit.agents", "pid": 122484, "inference": true, "timestamp": "2025-03-20T17:45:06.944060+00:00"}
+2025-03-20 23:15:06,948 - ERROR - worker failed
+Traceback (most recent call last):
+  File "/home/apoorv/.local/lib/python3.10/site-packages/livekit/agents/cli/cli.py", line 266, in _worker_run
+    await worker.run()
+  File "/home/apoorv/.local/lib/python3.10/site-packages/livekit/agents/worker.py", line 356, in run
+    await asyncio.gather(*tasks)
+  File "/home/apoorv/.local/lib/python3.10/site-packages/livekit/agents/http_server.py", line 28, in run
+    await site.start()
+  File "/home/apoorv/.local/lib/python3.10/site-packages/aiohttp/web_runner.py", line 121, in start
+    self._server = await loop.create_server(
+  File "/usr/lib/python3.10/asyncio/base_events.py", line 1519, in create_server
+    raise OSError(err.errno, 'error while attempting '
+OSError: [Errno 98] error while attempting to bind on address ('::', 8081, 0, 0): address already in use
+{"message": "worker failed", "level": "ERROR", "name": "livekit.agents", "exc_info": "Traceback (most recent call last):\n  File \"/home/apoorv/.local/lib/python3.10/site-packages/livekit/agents/cli/cli.py\", line 266, in _worker_run\n    await worker.run()\n  File \"/home/apoorv/.local/lib/python3.10/site-packages/livekit/agents/worker.py\", line 356, in run\n    await asyncio.gather(*tasks)\n  File \"/home/apoorv/.local/lib/python3.10/site-packages/livekit/agents/http_server.py\", line 28, in run\n    await site.start()\n  File \"/home/apoorv/.local/lib/python3.10/site-packages/aiohttp/web_runner.py\", line 121, in start\n    self._server = await loop.create_server(\n  File \"/usr/lib/python3.10/asyncio/base_events.py\", line 1519, in create_server\n    raise OSError(err.errno, 'error while attempting '\nOSError: [Errno 98] error while attempting to bind on address ('::', 8081, 0, 0): address already in use", "timestamp": "2025-03-20T17:45:06.948166+00:00"}
+2025-03-20 23:15:06,950 - INFO - draining worker
+{"message": "draining worker", "level": "INFO", "name": "livekit.agents", "id": "unregistered", "timeout": 60, "timestamp": "2025-03-20T17:45:06.950929+00:00"}
+2025-03-20 23:15:06,952 - INFO - shutting down worker
+{"message": "shutting down worker", "level": "INFO", "name": "livekit.agents", "id": "unregistered", "timestamp": "2025-03-20T17:45:06.952094+00:00"}
+2025-03-20 23:15:07,736 - INFO - initializing job process
+2025-03-20 23:15:07,736 - INFO - initializing job process
+{"message": "initializing job process", "level": "INFO", "name": "livekit.agents", "pid": 122551, "timestamp": "2025-03-20T17:45:07.736056+00:00"}
+2025-03-20 23:15:07,740 - INFO - initializing job process
+2025-03-20 23:15:07,740 - INFO - initializing job process
+{"message": "initializing job process", "level": "INFO", "name": "livekit.agents", "pid": 122552, "timestamp": "2025-03-20T17:45:07.740795+00:00"}
+2025-03-20 23:15:07,778 - INFO - job process initialized
+2025-03-20 23:15:07,778 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:15:07,778 - INFO - job process initialized
+{"message": "job process initialized", "level": "INFO", "name": "livekit.agents", "pid": 122551, "timestamp": "2025-03-20T17:45:07.778668+00:00"}
+2025-03-20 23:15:07,783 - INFO - job process initialized
+2025-03-20 23:15:07,783 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:15:07,783 - INFO - job process initialized
+{"message": "job process initialized", "level": "INFO", "name": "livekit.agents", "pid": 122552, "timestamp": "2025-03-20T17:45:07.783453+00:00"}
+2025-03-20 23:15:08,057 - INFO - initializing job process
+2025-03-20 23:15:08,057 - INFO - initializing job process
+{"message": "initializing job process", "level": "INFO", "name": "livekit.agents", "pid": 122550, "timestamp": "2025-03-20T17:45:08.057180+00:00"}
+2025-03-20 23:15:08,098 - INFO - job process initialized
+2025-03-20 23:15:08,098 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:15:08,098 - INFO - job process initialized
+{"message": "job process initialized", "level": "INFO", "name": "livekit.agents", "pid": 122550, "timestamp": "2025-03-20T17:45:08.098737+00:00"}
+2025-03-20 23:15:08,234 - INFO - process exiting
+{"message": "process exiting", "level": "INFO", "name": "livekit.agents", "reason": "", "pid": 122484, "inference": true, "timestamp": "2025-03-20T17:45:08.234793+00:00"}
+Usage: agent.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  connect         Connect to a specific room
+  dev             Start the worker in development mode
+  download-files  Download plugin dependency files
+  start           Start the worker in production mode.
+2025-03-20 23:19:03,994 - INFO - starting worker
+{"message": "starting worker", "level": "INFO", "name": "livekit.agents", "version": "0.12.17", "rtc-version": "0.21.1", "timestamp": "2025-03-20T17:49:03.994935+00:00"}
+2025-03-20 23:19:03,995 - INFO - starting inference executor
+{"message": "starting inference executor", "level": "INFO", "name": "livekit.agents", "timestamp": "2025-03-20T17:49:03.995059+00:00"}
+2025-03-20 23:19:04,689 - INFO - initializing inference process
+2025-03-20 23:19:04,689 - DEBUG - initializing inference runner
+2025-03-20 23:19:04,689 - INFO - initializing inference process
+{"message": "initializing inference process", "level": "INFO", "name": "livekit.agents", "pid": 123468, "inference": true, "timestamp": "2025-03-20T17:49:04.689149+00:00"}
+2025-03-20 23:19:06,270 - INFO - inference process initialized
+2025-03-20 23:19:06,270 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:19:06,270 - INFO - inference process initialized
+{"message": "inference process initialized", "level": "INFO", "name": "livekit.agents", "pid": 123468, "inference": true, "timestamp": "2025-03-20T17:49:06.270642+00:00"}
+2025-03-20 23:19:06,457 - INFO - registered worker
+{"message": "registered worker", "level": "INFO", "name": "livekit.agents", "id": "AW_w65mpvkFqxjC", "region": "India", "protocol": 15, "node_id": "NC_OMUMBAI1A_cHC2csHedqxK", "timestamp": "2025-03-20T17:49:06.457983+00:00"}
+2025-03-20 23:19:07,022 - INFO - initializing job process
+2025-03-20 23:19:07,022 - INFO - initializing job process
+{"message": "initializing job process", "level": "INFO", "name": "livekit.agents", "pid": 123526, "timestamp": "2025-03-20T17:49:07.022241+00:00"}
+2025-03-20 23:19:07,063 - INFO - job process initialized
+2025-03-20 23:19:07,063 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:19:07,063 - INFO - job process initialized
+{"message": "job process initialized", "level": "INFO", "name": "livekit.agents", "pid": 123526, "timestamp": "2025-03-20T17:49:07.063496+00:00"}
+2025-03-20 23:19:07,156 - INFO - initializing job process
+2025-03-20 23:19:07,156 - INFO - initializing job process
+{"message": "initializing job process", "level": "INFO", "name": "livekit.agents", "pid": 123524, "timestamp": "2025-03-20T17:49:07.156799+00:00"}
+2025-03-20 23:19:07,161 - INFO - initializing job process
+2025-03-20 23:19:07,161 - INFO - initializing job process
+{"message": "initializing job process", "level": "INFO", "name": "livekit.agents", "pid": 123527, "timestamp": "2025-03-20T17:49:07.161259+00:00"}
+2025-03-20 23:19:07,198 - INFO - job process initialized
+2025-03-20 23:19:07,198 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:19:07,198 - INFO - job process initialized
+{"message": "job process initialized", "level": "INFO", "name": "livekit.agents", "pid": 123524, "timestamp": "2025-03-20T17:49:07.198043+00:00"}
+2025-03-20 23:19:07,203 - INFO - job process initialized
+2025-03-20 23:19:07,203 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:19:07,203 - INFO - job process initialized
+{"message": "job process initialized", "level": "INFO", "name": "livekit.agents", "pid": 123527, "timestamp": "2025-03-20T17:49:07.203228+00:00"}
+2025-03-20 23:19:11,905 - INFO - draining worker
+{"message": "draining worker", "level": "INFO", "name": "livekit.agents", "id": "AW_w65mpvkFqxjC", "timeout": 60, "timestamp": "2025-03-20T17:49:11.905939+00:00"}
+2025-03-20 23:19:11,906 - INFO - shutting down worker
+{"message": "shutting down worker", "level": "INFO", "name": "livekit.agents", "id": "AW_w65mpvkFqxjC", "timestamp": "2025-03-20T17:49:11.906761+00:00"}
+2025-03-20 23:19:12,139 - INFO - process exiting
+{"message": "process exiting", "level": "INFO", "name": "livekit.agents", "reason": "", "pid": 123468, "inference": true, "timestamp": "2025-03-20T17:49:12.139532+00:00"}
+2025-03-20 23:19:19,961 - INFO - starting worker
+{"message": "starting worker", "level": "INFO", "name": "livekit.agents", "version": "0.12.17", "rtc-version": "0.21.1", "timestamp": "2025-03-20T17:49:19.961796+00:00"}
+2025-03-20 23:19:19,961 - INFO - starting inference executor
+{"message": "starting inference executor", "level": "INFO", "name": "livekit.agents", "timestamp": "2025-03-20T17:49:19.961915+00:00"}
+2025-03-20 23:19:20,616 - INFO - initializing inference process
+2025-03-20 23:19:20,616 - DEBUG - initializing inference runner
+2025-03-20 23:19:20,616 - INFO - initializing inference process
+{"message": "initializing inference process", "level": "INFO", "name": "livekit.agents", "pid": 123691, "inference": true, "timestamp": "2025-03-20T17:49:20.616225+00:00"}
+2025-03-20 23:19:22,201 - INFO - inference process initialized
+2025-03-20 23:19:22,202 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:19:22,201 - INFO - inference process initialized
+{"message": "inference process initialized", "level": "INFO", "name": "livekit.agents", "pid": 123691, "inference": true, "timestamp": "2025-03-20T17:49:22.201803+00:00"}
+2025-03-20 23:19:22,398 - INFO - registered worker
+{"message": "registered worker", "level": "INFO", "name": "livekit.agents", "id": "AW_PDh386EGiKSn", "region": "India", "protocol": 15, "node_id": "NC_OMUMBAI1A_pyGVJNYJnSLm", "timestamp": "2025-03-20T17:49:22.398583+00:00"}
+2025-03-20 23:19:22,957 - INFO - initializing job process
+2025-03-20 23:19:22,957 - INFO - initializing job process
+{"message": "initializing job process", "level": "INFO", "name": "livekit.agents", "pid": 123748, "timestamp": "2025-03-20T17:49:22.957990+00:00"}
+2025-03-20 23:19:22,988 - INFO - initializing job process
+2025-03-20 23:19:22,988 - INFO - initializing job process
+{"message": "initializing job process", "level": "INFO", "name": "livekit.agents", "pid": 123751, "timestamp": "2025-03-20T17:49:22.988731+00:00"}
+2025-03-20 23:19:22,999 - INFO - job process initialized
+2025-03-20 23:19:22,999 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:19:22,999 - INFO - job process initialized
+{"message": "job process initialized", "level": "INFO", "name": "livekit.agents", "pid": 123748, "timestamp": "2025-03-20T17:49:22.999588+00:00"}
+2025-03-20 23:19:23,030 - INFO - job process initialized
+2025-03-20 23:19:23,030 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:19:23,030 - INFO - job process initialized
+{"message": "job process initialized", "level": "INFO", "name": "livekit.agents", "pid": 123751, "timestamp": "2025-03-20T17:49:23.030549+00:00"}
+2025-03-20 23:19:23,175 - INFO - initializing job process
+2025-03-20 23:19:23,175 - INFO - initializing job process
+{"message": "initializing job process", "level": "INFO", "name": "livekit.agents", "pid": 123752, "timestamp": "2025-03-20T17:49:23.175664+00:00"}
+2025-03-20 23:19:23,216 - INFO - job process initialized
+2025-03-20 23:19:23,217 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:19:23,216 - INFO - job process initialized
+{"message": "job process initialized", "level": "INFO", "name": "livekit.agents", "pid": 123752, "timestamp": "2025-03-20T17:49:23.216973+00:00"}
+2025-03-20 23:19:43,070 - INFO - ::1 [20/Mar/2025:23:19:43 +0530] "GET / HTTP/1.1" 200 155 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+{"message": "::1 [20/Mar/2025:23:19:43 +0530] \"GET / HTTP/1.1\" 200 155 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36\"", "level": "INFO", "name": "aiohttp.access", "remote_address": "::1", "request_start_time": "[20/Mar/2025:23:19:43 +0530]", "first_request_line": "GET / HTTP/1.1", "response_status": 200, "response_size": 155, "request_header": {"Referer": "-", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"}, "timestamp": "2025-03-20T17:49:43.070117+00:00"}
+2025-03-20 23:19:43,113 - INFO - ::1 [20/Mar/2025:23:19:43 +0530] "GET /favicon.ico HTTP/1.1" 404 175 "http://localhost:8081/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+{"message": "::1 [20/Mar/2025:23:19:43 +0530] \"GET /favicon.ico HTTP/1.1\" 404 175 \"http://localhost:8081/\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36\"", "level": "INFO", "name": "aiohttp.access", "remote_address": "::1", "request_start_time": "[20/Mar/2025:23:19:43 +0530]", "first_request_line": "GET /favicon.ico HTTP/1.1", "response_status": 404, "response_size": 175, "request_header": {"Referer": "http://localhost:8081/", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"}, "timestamp": "2025-03-20T17:49:43.113986+00:00"}
+2025-03-20 23:58:57,596 - INFO - received job request
+{"message": "received job request", "level": "INFO", "name": "livekit.agents", "job_id": "AJ_zFM4FWzChdVJ", "dispatch_id": "", "room_name": "interview-67da570791c3a1f5f15115c5-1742495337032", "agent_name": "", "resuming": false, "timestamp": "2025-03-20T18:28:57.596064+00:00"}
+2025-03-20 23:58:57,656 - INFO - 🔄 Connecting to room interview-67da570791c3a1f5f15115c5-1742495337032
+2025-03-20 23:58:57,656 - INFO - 🔄 Connecting to room interview-67da570791c3a1f5f15115c5-1742495337032
+{"message": "\ud83d\udd04 Connecting to room interview-67da570791c3a1f5f15115c5-1742495337032", "level": "INFO", "name": "voice-agent", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:28:57.656720+00:00"}
+2025-03-20 23:58:57,667 - INFO - livekit_ffi::server:138:livekit_ffi::server - initializing ffi server v0.12.14
+2025-03-20 23:58:57,667 - INFO - livekit_ffi::cabi:36:livekit_ffi::cabi - initializing ffi server v0.12.14
+2025-03-20 23:58:57,667 - INFO - livekit_ffi::server:138:livekit_ffi::server - initializing ffi server v0.12.14
+{"message": "livekit_ffi::server:138:livekit_ffi::server - initializing ffi server v0.12.14", "level": "INFO", "name": "livekit", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:28:57.667175+00:00"}
+2025-03-20 23:58:57,667 - INFO - livekit_ffi::cabi:36:livekit_ffi::cabi - initializing ffi server v0.12.14
+{"message": "livekit_ffi::cabi:36:livekit_ffi::cabi - initializing ffi server v0.12.14", "level": "INFO", "name": "livekit", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:28:57.667504+00:00"}
+2025-03-20 23:58:57,686 - INFO - livekit_api::signal_client::signal_stream:96:livekit_api::signal_client::signal_stream - connecting to wss://hr-portal-217u3dq5.livekit.cloud/rtc?sdk=python&protocol=15&auto_subscribe=0&adaptive_stream=0&version=0.21.1&access_token=...
+2025-03-20 23:58:57,686 - INFO - livekit_api::signal_client::signal_stream:96:livekit_api::signal_client::signal_stream - connecting to wss://hr-portal-217u3dq5.livekit.cloud/rtc?sdk=python&protocol=15&auto_subscribe=0&adaptive_stream=0&version=0.21.1&access_token=...
+{"message": "livekit_api::signal_client::signal_stream:96:livekit_api::signal_client::signal_stream - connecting to wss://hr-portal-217u3dq5.livekit.cloud/rtc?sdk=python&protocol=15&auto_subscribe=0&adaptive_stream=0&version=0.21.1&access_token=...", "level": "INFO", "name": "livekit", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:28:57.686894+00:00"}
+2025-03-20 23:58:57,770 - DEBUG - rustls::anchors:150:rustls::anchors - add_parsable_certificates processed 147 valid and 0 invalid certs
+2025-03-20 23:58:57,770 - DEBUG - tokio_tungstenite::tls::encryption::rustls:103:tokio_tungstenite::tls::encryption::rustls - Added 147/147 native root certificates (ignored 0)
+2025-03-20 23:58:57,770 - DEBUG - rustls::client::hs:73:rustls::client::hs - No cached session for DnsName("hr-portal-217u3dq5.livekit.cloud")
+2025-03-20 23:58:57,770 - DEBUG - rustls::client::hs:132:rustls::client::hs - Not resuming any session
+2025-03-20 23:58:57,803 - DEBUG - rustls::client::hs:615:rustls::client::hs - Using ciphersuite TLS13_AES_128_GCM_SHA256
+2025-03-20 23:58:57,804 - DEBUG - rustls::client::tls13:142:rustls::client::tls13 - Not resuming
+2025-03-20 23:58:57,804 - DEBUG - rustls::client::tls13:381:rustls::client::tls13 - TLS1.3 encrypted extensions: []
+2025-03-20 23:58:57,804 - DEBUG - rustls::client::hs:472:rustls::client::hs - ALPN protocol is None
+2025-03-20 23:58:57,909 - DEBUG - tungstenite::handshake::client:95:tungstenite::handshake::client - Client handshake done.
+2025-03-20 23:58:58,250 - INFO - 🤖 AI: Hello! I can schedule an interview for you. What date and time work best?
+2025-03-20 23:58:58,253 - DEBUG - http_session(): creating a new httpclient ctx
+2025-03-20 23:58:58,250 - INFO - 🤖 AI: Hello! I can schedule an interview for you. What date and time work best?
+{"message": "\ud83e\udd16 AI: Hello! I can schedule an interview for you. What date and time work best?", "level": "INFO", "name": "voice-agent", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:28:58.250134+00:00"}
+2025-03-20 23:58:58,939 - INFO - initializing job process
+2025-03-20 23:58:58,939 - INFO - initializing job process
+{"message": "initializing job process", "level": "INFO", "name": "livekit.agents", "pid": 143205, "timestamp": "2025-03-20T18:28:58.939275+00:00"}
+2025-03-20 23:58:59,000 - INFO - job process initialized
+2025-03-20 23:58:59,000 - DEBUG - Using selector: EpollSelector
+2025-03-20 23:58:59,000 - INFO - job process initialized
+{"message": "job process initialized", "level": "INFO", "name": "livekit.agents", "pid": 143205, "timestamp": "2025-03-20T18:28:59.000229+00:00"}
+2025-03-20 23:58:59,915 - DEBUG - speech playout started
+2025-03-20 23:59:00,817 - INFO - Pipeline TTS metrics: sequence_id=974eb562aae1, ttfb=0.6235022760010906, audio_duration=3.81
+2025-03-20 23:59:00,817 - INFO - Pipeline TTS metrics: sequence_id=974eb562aae1, ttfb=0.6235022760010906, audio_duration=3.81
+{"message": "Pipeline TTS metrics: sequence_id=974eb562aae1, ttfb=0.6235022760010906, audio_duration=3.81", "level": "INFO", "name": "livekit.agents", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:00.817931+00:00"}
+2025-03-20 23:59:03,728 - DEBUG - speech playout finished
+2025-03-20 23:59:03,728 - DEBUG - committed agent speech
+2025-03-20 23:59:05,070 - INFO - Pipeline STT metrics: duration=5.05, audio_duration=5.05
+2025-03-20 23:59:05,070 - INFO - Pipeline STT metrics: duration=5.05, audio_duration=5.05
+{"message": "Pipeline STT metrics: duration=5.05, audio_duration=5.05", "level": "INFO", "name": "livekit.agents", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:05.070811+00:00"}
+2025-03-20 23:59:10,071 - INFO - Pipeline STT metrics: duration=10.05, audio_duration=5.00
+2025-03-20 23:59:10,071 - INFO - Pipeline STT metrics: duration=10.05, audio_duration=5.00
+{"message": "Pipeline STT metrics: duration=10.05, audio_duration=5.00", "level": "INFO", "name": "livekit.agents", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:10.071754+00:00"}
+2025-03-20 23:59:15,121 - INFO - Pipeline STT metrics: duration=15.10, audio_duration=5.05
+2025-03-20 23:59:15,121 - INFO - Pipeline STT metrics: duration=15.10, audio_duration=5.05
+{"message": "Pipeline STT metrics: duration=15.10, audio_duration=5.05", "level": "INFO", "name": "livekit.agents", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:15.121926+00:00"}
+2025-03-20 23:59:16,358 - DEBUG - received user transcript
+2025-03-20 23:59:16,514 - DEBUG - eou prediction
+2025-03-20 23:59:16,514 - DEBUG - validated agent reply
+2025-03-20 23:59:16,515 - INFO - Pipeline EOU metrics: sequence_id=634125cb3a8a, end_of_utterance_delay=0.68, transcription_delay=0.53
+2025-03-20 23:59:16,515 - INFO - Pipeline EOU metrics: sequence_id=634125cb3a8a, end_of_utterance_delay=0.68, transcription_delay=0.53
+{"message": "Pipeline EOU metrics: sequence_id=634125cb3a8a, end_of_utterance_delay=0.68, transcription_delay=0.53", "level": "INFO", "name": "livekit.agents", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:16.515265+00:00"}
+2025-03-20 23:59:16,585 - DEBUG - Request options: {'method': 'post', 'url': '/chat/completions', 'files': None, 'json_data': {'messages': [{'role': 'system', 'content': 'You are an AI assistant that schedules interviews.\n- Available slots: Monday & Tuesday (11 AM - 4 PM).\n- Confirm date and time with candidate.\n- If event is booked successfully, share the calendar link.\n- If booking fails, apologize and suggest trying again later.'}, {'role': 'assistant', 'content': 'Hello! I can schedule an interview for you. What date and time work best?'}, {'role': 'user', 'content': "Hey. I'm Alderman."}], 'model': 'llama3-8b-8192', 'n': 1, 'stream': True, 'stream_options': {'include_usage': True}, 'tool_choice': 'auto', 'tools': [{'type': 'function', 'function': {'name': 'schedule_interview_event', 'description': 'Schedule an interview in Google Calendar and respond accordingly', 'parameters': {'type': 'object', 'properties': {'date': {'type': 'string'}, 'time': {'type': 'string'}, 'candidate_email': {'type': 'string'}}, 'required': ['date', 'time']}}}]}}
+2025-03-20 23:59:16,596 - DEBUG - connect_tcp.started host='api.groq.com' port=443 local_address=None timeout=15.0 socket_options=None
+2025-03-20 23:59:16,737 - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7e7e2a9b15a0>
+2025-03-20 23:59:16,737 - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x7e7e2b7eefc0> server_hostname='api.groq.com' timeout=15.0
+2025-03-20 23:59:16,769 - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7e7e2a96fe50>
+2025-03-20 23:59:16,770 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-03-20 23:59:16,771 - DEBUG - send_request_headers.complete
+2025-03-20 23:59:16,771 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-03-20 23:59:16,772 - DEBUG - send_request_body.complete
+2025-03-20 23:59:16,772 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-03-20 23:59:17,570 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Thu, 20 Mar 2025 18:29:17 GMT'), (b'Content-Type', b'text/event-stream'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Cache-Control', b'no-cache'), (b'Vary', b'Origin'), (b'X-Groq-Region', b'gcp-asia-south1'), (b'X-Ratelimit-Limit-Requests', b'14400'), (b'X-Ratelimit-Limit-Tokens', b'6000'), (b'X-Ratelimit-Remaining-Requests', b'14399'), (b'X-Ratelimit-Remaining-Tokens', b'5897'), (b'X-Ratelimit-Reset-Requests', b'6s'), (b'X-Ratelimit-Reset-Tokens', b'1.03s'), (b'X-Request-Id', b'req_01jptd25wqf26ve3e52b8g60nn'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=577x5i4jhioK0fLGYAuns1iSA3LCVDt9QxeURRLe9Tk-1742495357-1.0.1.1-z52v1XJeK6sLg1iBkdgNVy04lugQ_qc95_BhlvtFKTPd4pr1xD0e.ssAoS55zsYyXY4ljB.YAtGpVCPFGhoBfs40f4NDVhEwkYUDweIPjh8; path=/; expires=Thu, 20-Mar-25 18:59:17 GMT; domain=.groq.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'9237462b993ec19a-BLR'), (b'alt-svc', b'h3=":443"; ma=86400')])
+2025-03-20 23:59:17,572 - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-03-20 23:59:17,573 - DEBUG - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "200 OK"
+2025-03-20 23:59:17,573 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-03-20 23:59:17,828 - DEBUG - receive_response_body.complete
+2025-03-20 23:59:17,828 - DEBUG - response_closed.started
+2025-03-20 23:59:17,828 - DEBUG - response_closed.complete
+2025-03-20 23:59:17,829 - INFO - Pipeline LLM metrics: sequence_id=634125cb3a8a, ttft=1.06, input_tokens=1033, output_tokens=31, tokens_per_second=23.67
+2025-03-20 23:59:17,829 - INFO - Pipeline LLM metrics: sequence_id=634125cb3a8a, ttft=1.06, input_tokens=1033, output_tokens=31, tokens_per_second=23.67
+{"message": "Pipeline LLM metrics: sequence_id=634125cb3a8a, ttft=1.06, input_tokens=1033, output_tokens=31, tokens_per_second=23.67", "level": "INFO", "name": "livekit.agents", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:17.829623+00:00"}
+2025-03-20 23:59:18,212 - DEBUG - speech playout started
+2025-03-20 23:59:19,098 - INFO - Pipeline TTS metrics: sequence_id=634125cb3a8a, ttfb=0.6308634880042518, audio_duration=6.15
+2025-03-20 23:59:19,098 - INFO - Pipeline TTS metrics: sequence_id=634125cb3a8a, ttfb=0.6308634880042518, audio_duration=6.15
+{"message": "Pipeline TTS metrics: sequence_id=634125cb3a8a, ttfb=0.6308634880042518, audio_duration=6.15", "level": "INFO", "name": "livekit.agents", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:19.098426+00:00"}
+2025-03-20 23:59:20,170 - INFO - Pipeline STT metrics: duration=20.15, audio_duration=5.05
+2025-03-20 23:59:20,170 - INFO - Pipeline STT metrics: duration=20.15, audio_duration=5.05
+{"message": "Pipeline STT metrics: duration=20.15, audio_duration=5.05", "level": "INFO", "name": "livekit.agents", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:20.170691+00:00"}
+2025-03-20 23:59:24,372 - DEBUG - speech playout finished
+2025-03-20 23:59:24,373 - DEBUG - committed agent speech
+2025-03-20 23:59:25,172 - INFO - Pipeline STT metrics: duration=25.15, audio_duration=5.00
+2025-03-20 23:59:25,172 - INFO - Pipeline STT metrics: duration=25.15, audio_duration=5.00
+{"message": "Pipeline STT metrics: duration=25.15, audio_duration=5.00", "level": "INFO", "name": "livekit.agents", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:25.172101+00:00"}
+2025-03-20 23:59:46,427 - DEBUG - tungstenite::protocol:666:tungstenite::protocol - Received close frame: Some(CloseFrame { code: Normal, reason: "" })
+2025-03-20 23:59:46,428 - DEBUG - tungstenite::protocol:683:tungstenite::protocol - Replying to close with Frame { header: FrameHeader { is_final: true, rsv1: false, rsv2: false, rsv3: false, opcode: Control(Close), mask: None }, payload: [3, 232] }
+2025-03-20 23:59:46,429 - WARNING - livekit::rtc_engine:446:livekit::rtc_engine - received session close: "signal client closed: \"stream closed\"" UnknownReason Resume
+2025-03-20 23:59:46,430 - DEBUG - shutting down job task
+2025-03-20 23:59:46,431 - DEBUG - http_session(): closing the httpclient ctx
+2025-03-20 23:59:46,435 - INFO - livekit::room:1191:livekit::room - disconnected from room with reason: RoomClosed
+2025-03-20 23:59:46,439 - INFO - process exiting
+{"message": "process exiting", "level": "INFO", "name": "livekit.agents", "reason": "room disconnected", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:46.439463+00:00"}
+2025-03-20 23:59:46,429 - WARNING - livekit::rtc_engine:446:livekit::rtc_engine - received session close: "signal client closed: \"stream closed\"" UnknownReason Resume
+{"message": "livekit::rtc_engine:446:livekit::rtc_engine - received session close: \"signal client closed: \\\"stream closed\\\"\" UnknownReason Resume", "level": "WARNING", "name": "livekit", "pid": 123748, "job_id": "AJ_zFM4FWzChdVJ", "timestamp": "2025-03-20T18:29:46.429504+00:00"}

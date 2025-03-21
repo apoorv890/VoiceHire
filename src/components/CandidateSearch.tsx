@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Filter, X, Sliders } from 'lucide-react';
 import SearchBar from './ui/search-bar';
 import { Button } from './ui/button';
+import { getApiUrl, getDefaultHeaders } from '@/utils/apiConfig';
 
 interface Candidate {
   _id: string;
@@ -45,7 +46,7 @@ const CandidateSearch: React.FC<CandidateSearchProps> = ({
     try {
       if (useSemanticSearch) {
         // Use semantic search API
-        const response = await fetch('http://localhost:5000/api/search/semantic', {
+        const response = await fetch(getApiUrl('/api/search/semantic'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -71,7 +72,7 @@ const CandidateSearch: React.FC<CandidateSearchProps> = ({
         if (minScore) params.append('minScore', minScore);
         if (maxScore) params.append('maxScore', maxScore);
         
-        const response = await fetch(`http://localhost:5000/api/search/candidates?${params.toString()}`);
+        const response = await fetch(getApiUrl(`/api/search/candidates?${params.toString()}`));
         
         if (!response.ok) {
           throw new Error('Search failed');
@@ -95,7 +96,7 @@ const CandidateSearch: React.FC<CandidateSearchProps> = ({
       params.append('prefix', prefix);
       if (jobId) params.append('jobId', jobId);
       
-      const response = await fetch(`http://localhost:5000/api/search/suggestions/candidates?${params.toString()}`);
+      const response = await fetch(getApiUrl(`/api/search/suggestions/candidates?${params.toString()}`));
       if (!response.ok) {
         throw new Error('Failed to fetch suggestions');
       }
