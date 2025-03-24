@@ -75,9 +75,18 @@ const groqClient = new Groq({
 });
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB Atlas'))
-  .catch(err => console.error('MongoDB connection error:', err));
+console.log('Attempting to connect to MongoDB with URI:', process.env.MONGODB_URI ? 'URI is defined' : 'URI is undefined');
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000 // Timeout after 5s instead of 30s
+})
+  .then(() => console.log('Connected to MongoDB Atlas successfully'))
+  .catch(err => {
+    console.error('MongoDB connection error details:', err);
+    console.error('Please check your MONGODB_URI environment variable and network settings');
+  });
 
 // Search jobs endpoint
 app.get('/api/search/jobs', async (req, res) => {
@@ -1028,11 +1037,20 @@ app.post('/api/interview/start-agent', async (req, res) => {
 // Register a new user
 app.post('/api/auth/register', async (req, res) => {
   try {
+    console.log('Registration attempt received:', req.body);
+    
+    if (!req.body || !req.body.fullName || !req.body.email || !req.body.password) {
+      console.log('Missing required registration fields');
+      return res.status(400).json({ error: 'Full name, email, and password are required' });
+    }
+    
     const { fullName, email, password } = req.body;
 
     // Check if user already exists
+    console.log('Checking if user exists with email:', email);
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('User already exists with email:', email);
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 
@@ -1063,25 +1081,47 @@ app.post('/api/auth/register', async (req, res) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Server error during registration' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Server error during registration', 
+      message: error.message,
+      stack: process.env.NODE_ENV === 'production' ? null : error.stack 
+    });
   }
 });
 
 // Login user
 app.post('/api/auth/login', async (req, res) => {
   try {
+    console.log('Login attempt received for:', req.body.email || 'email not provided');
+    
+    if (!req.body || !req.body.email || !req.body.password) {
+      console.log('Missing required login fields:', req.body);
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+    
     const { email, password } = req.body;
 
     // Find user by email
+    console.log('Searching for user with email:', email);
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('User not found with email:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+    console.log('User found, checking password');
 
     // Check password
-    const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    try {
+      const isPasswordValid = await user.comparePassword(password);
+      if (!isPasswordValid) {
+        console.log('Invalid password for user:', email);
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      console.log('Password validated successfully');
+    } catch (passwordError) {
+      console.error('Error during password comparison:', passwordError);
+      return res.status(500).json({ error: 'Authentication error', details: passwordError.message });
     }
 
     // Generate JWT token
@@ -1102,7 +1142,12 @@ app.post('/api/auth/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Server error during login' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Server error during login', 
+      message: error.message,
+      stack: process.env.NODE_ENV === 'production' ? null : error.stack 
+    });
   }
 });
 

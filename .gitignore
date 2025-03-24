@@ -1,3 +1,31 @@
+# Dependencies
+node_modules
+/.pnp
+.pnp.js
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+# Testing
+/coverage
+.nyc_output
+
+# Production/Build
+/build
+/dist
+/dist-ssr
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+development.env
+
 # Logs
 logs
 *.log
@@ -7,21 +35,86 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.env
-development.env
+.DS_Store
 
+# Misc
+.cache/
+.project
+.settings/
+.tmproj
+*.esproj
+*.sublime-project
+*.sublime-workspace
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Temporary folders
+tmp/
+temp/
+
+# TypeScript
+*.tsbuildinfo
+
+# Local files
+*.local
+
+# Infrastructure as Code
+terraform.tfvars
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Project specific - Deployment
+# Keep etc directory structure but ignore sensitive/generated files
+etc/**/.terraform/
+etc/**/.terraform.lock.hcl
+etc/**/*.tfstate
+etc/**/*.tfstate.backup
+etc/**/*.tfvars
+# Explicitly ignore the specific terraform.tfvars file
+etc/deploy/terraform.tfvars
+# Don't ignore README and actual terraform config files
+!etc/**/README.md
+!etc/**/*.tf
+
+# Python (for LiveKit AI agent)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env/
+.venv/
+ENV/
+transcripts.txt

@@ -119,7 +119,12 @@ async def entrypoint(ctx: JobContext):
             "- Available slots: Monday & Tuesday (11 AM - 4 PM).\n"
             "- Confirm date and time with candidate.\n"
             "- If event is booked successfully, share the calendar link.\n"
-            "- If booking fails, apologize and suggest trying again later."
+            "- If booking fails, apologize and suggest trying again later.\n"
+            "important"
+            "- Do not ask any irrelevant questions.\n"
+            "- Do not engage in small talk.\n"
+            "- Do not provide additional details or explanations.\n"
+            "- Strictly follow the outlined sequence and purpose."
         ),
     )
 
