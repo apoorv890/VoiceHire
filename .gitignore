@@ -118,3 +118,7 @@ env/
 .venv/
 ENV/
 transcripts.txt
+
+# Uploads
+uploads/*.pdf
+src/dist/
