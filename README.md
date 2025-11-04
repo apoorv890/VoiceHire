@@ -1,15 +1,30 @@
-# HR Portal Application
+# VoiceHire - AI-Powered HR Portal
 
-A modern HR portal application with authentication, job management, candidate tracking, and resume processing capabilities.
+A modern, full-stack HR portal application with AI-powered resume analysis, role-based access control, and real-time interview capabilities.
+
+## Project Structure
+
+```
+VoiceHire/
+├── frontend/          # React + TypeScript + Tailwind CSS
+├── backend/           # Node.js + Express (MVC Architecture)
+│   ├── server/        # Application code
+│   └── agent/         # AI interview agent
+└── README.md
+```
 
 ## Features
 
+- **Role-Based Access Control**: Two user personas (Admin & User)
+  - **Admin**: Full access - create jobs, upload resumes, analyze candidates
+  - **User**: Limited access - view and apply to jobs only
 - **Authentication System**: Secure login and registration with JWT
 - **Job Management**: Create, view, and manage job postings
 - **Candidate Tracking**: Track candidates for each job posting
-- **Resume Processing**: Upload and analyze resumes with AI
+- **AI Resume Processing**: Upload and analyze resumes with Groq AI
 - **Search Functionality**: Unified search for jobs and candidates
-- **Audio Conferencing**: Built-in audio conferencing capabilities
+- **Audio Conferencing**: Built-in interview capabilities with LiveKit
+- **MVC Architecture**: Clean, maintainable backend structure
 
 ## Tech Stack
 
@@ -49,14 +64,48 @@ COMPANY_NAME=your_company_name
 ### Installation
 
 1. Clone the repository
-2. Install dependencies:
+   ```bash
+   git clone https://github.com/apoorv890/VoiceHire.git
+   cd VoiceHire
    ```
+
+2. Install dependencies for both frontend and backend:
+   ```bash
+   # Install backend dependencies
+   cd backend
+   npm install
+   
+   # Install frontend dependencies
+   cd ../frontend
    npm install
    ```
-3. Start the development server:
+
+3. Set up environment variables:
+   - Copy `.env.example` to `.env` in the backend folder
+   - Update the values with your credentials
+
+4. Start MongoDB:
+   ```bash
+   mongod --dbpath C:\data\db
    ```
+
+5. Start the development servers:
+   
+   **Backend (Terminal 1):**
+   ```bash
+   cd backend
    npm run dev
    ```
+   
+   **Frontend (Terminal 2):**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+
+6. Access the application:
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:5000
 
 ## Project Structure
 
